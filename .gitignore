@@ -1,0 +1,6 @@
+node_modules/
+dist/
+# Frames grabbed from the running app via the dev-only /__capture endpoint.
+.captures/
+*.local
+.DS_Store

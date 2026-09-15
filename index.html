@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#ffe7f0" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="description" content="Chinese Checkers for 2 to 6 players, pass and play on one device." />
+    <meta name="apple-mobile-web-app-title" content="Checkers" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./favicon-32.png" sizes="32x32" type="image/png" />
+    <!-- iOS only reads PNG here. -->
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+
+    <!-- Launch screens. iOS picks the file whose media query matches exactly. -->
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash-640x1136.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash-750x1334.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1242x2208.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1125x2436.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash-828x1792.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1242x2688.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1170x2532.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1284x2778.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1179x2556.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1290x2796.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1206x2622.png" />
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1320x2868.png" />
+
+    <title>Chinese Checkers</title>
+  </head>
+  <body>
+    <canvas id="scene" aria-label="Chinese Checkers board"></canvas>
+
+    <!-- In-game HUD -->
+    <header id="hud" class="hidden">
+      <div id="turn-chip">
+        <span id="turn-glyph" aria-hidden="true"></span>
+        <span id="turn-name">Player 1</span>
+      </div>
+      <button id="menu-button" type="button" aria-label="Game menu">☰</button>
+    </header>
+
+    <div id="turn-banner" class="hidden" role="status" aria-live="polite"></div>
+    <div id="toast" class="hidden" role="status" aria-live="polite"></div>
+    <div id="turn-actions" class="hidden">
+      <button id="btn-cancel-move" type="button">Cancel</button>
+      <button id="end-turn" class="hidden" type="button">End turn</button>
+    </div>
+
+    <!-- Home -->
+    <section id="screen-home" class="screen">
+      <div class="stack">
+        <h1 class="title">Chinese<br />Checkers</h1>
+        <p class="tagline">2 to 6 players, pass and play on one device.</p>
+        <button id="btn-new" class="primary" type="button">New Game</button>
+        <button id="btn-resume" class="ghost hidden" type="button">Resume Game</button>
+        <button id="btn-rules-home" class="ghost" type="button">How to Play</button>
+
+        <div id="ios-install" class="install-hint hidden">
+          <p>
+            Install it: tap
+            <strong>Share <span class="share-glyph" aria-hidden="true">&#x2191;</span></strong>
+            in Safari, then <strong>Add to Home Screen</strong>. It then runs full screen,
+            with no browser bars.
+          </p>
+          <button id="ios-install-dismiss" class="ghost" type="button">Got it</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Player setup -->
+    <section id="screen-setup" class="screen setup hidden">
+      <div class="setup-body">
+        <header class="panel-head">
+          <button id="btn-setup-back" class="icon-button" type="button" aria-label="Back">&#8592;</button>
+          <h2>New Game</h2>
+        </header>
+
+        <div class="setup-cols">
+          <div class="setup-col">
+            <h3>Players</h3>
+            <div id="count-picker" class="segmented" role="group" aria-label="Number of players"></div>
+            <p id="count-note" class="note"></p>
+
+            <h3>Game mode</h3>
+            <div id="mode-picker" class="segmented segmented-two" role="group" aria-label="Game mode"></div>
+            <p id="mode-note" class="note"></p>
+
+            <label class="row toggle" id="teams-row">
+              <span>
+                <strong>Teams</strong>
+                <small id="teams-note">Partners sit opposite each other.</small>
+              </span>
+              <input id="teams-toggle" type="checkbox" />
+            </label>
+          </div>
+
+          <div class="setup-col">
+            <h3>Seats</h3>
+            <div id="seat-list" class="seat-list"></div>
+          </div>
+        </div>
+
+        <div class="setup-actions">
+          <button id="btn-rule-variants" class="ghost" type="button">Rule variants</button>
+          <button id="btn-start" class="primary" type="button">Start Game</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rule variants, opened from setup as its own panel -->
+    <section id="screen-variants" class="screen hidden">
+      <div class="sheet-body">
+        <header class="panel-head">
+          <button id="btn-variants-back" class="icon-button" type="button" aria-label="Back">&#8592;</button>
+          <h2>Rule variants</h2>
+        </header>
+        <p class="note">
+          These differ between printed editions of the game. They lock once play starts.
+        </p>
+        <div id="rule-toggles"></div>
+        <button id="btn-variants-done" class="primary" type="button">Done</button>
+      </div>
+    </section>
+
+    <!-- Settings sheet -->
+    <section id="sheet-settings" class="sheet hidden" aria-label="Game settings">
+      <div class="sheet-body">
+        <div class="grabber" aria-hidden="true"></div>
+        <h2>Menu</h2>
+
+        <div class="actions">
+          <button id="btn-undo" class="ghost" type="button">Undo last move</button>
+          <button id="btn-restart" class="ghost" type="button">Restart game</button>
+          <button id="btn-end" class="danger" type="button">End game</button>
+        </div>
+
+        <h3>Play</h3>
+        <div id="play-settings"></div>
+
+        <h3>Rules in this game</h3>
+        <div id="active-rules" class="note-list"></div>
+
+        <div class="actions">
+          <button id="btn-rules-sheet" class="ghost" type="button">How to Play</button>
+          <button id="btn-close-sheet" class="primary" type="button">Back to game</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- End of game -->
+    <section id="screen-end" class="screen hidden">
+      <div class="stack">
+        <h2 id="end-title">Game Over</h2>
+        <ol id="placings" class="placings"></ol>
+        <button id="btn-rematch" class="primary" type="button">Rematch</button>
+        <button id="btn-new-setup" class="ghost" type="button">New Setup</button>
+        <button id="btn-home" class="ghost" type="button">Home</button>
+      </div>
+    </section>
+
+    <!-- Rules -->
+    <section id="screen-rules" class="screen hidden">
+      <div class="sheet-body prose">
+        <h2>How to Play</h2>
+        <p>
+          Move all ten of your marbles into the corner directly opposite the one you started in.
+          First player to fill it wins.
+        </p>
+        <h3>Your turn</h3>
+        <p>Move one marble, in one of two ways:</p>
+        <ul>
+          <li><strong>Step</strong> into an empty hole next door, in any of the six directions.</li>
+          <li>
+            <strong>Hop</strong> over a marble next door — yours or anyone's — into the empty hole
+            directly beyond it. You may keep hopping as far as the board allows, and you may stop
+            after any hop.
+          </li>
+        </ul>
+        <p>
+          You cannot mix a step and a hop in the same turn, and nothing is ever captured — hopped
+          marbles stay exactly where they are.
+        </p>
+        <h3>Super mode</h3>
+        <p>
+          In <strong>Super Chinese Checkers</strong> a hop is not limited to the marble next
+          door. You may jump a marble <em>any</em> distance away, as long as every hole between
+          you and it is empty, and you land the same distance beyond it in the same straight
+          line — with those holes empty too. The jumped marble ends up at the exact midpoint of
+          your move.
+        </p>
+        <p>
+          The ordinary hop is simply the shortest version of this, so everything else is
+          unchanged: still one marble per turn, still chainable, still nothing captured. Marbles
+          cross the board far faster, and games are much shorter. Pick the mode when you set up
+          the game.
+        </p>
+        <h3>Controls</h3>
+        <ul>
+          <li>Tap or click a marble to see its legal moves, then tap a ring to move there.</li>
+          <li>
+            Your turn only passes on when you press <em>End turn</em> — no move ends it by
+            itself. After a hop you can tap another ring to keep hopping first.
+          </li>
+          <li>Tap the marble to put it back a leg at a time, until the turn is open again.</li>
+          <li>
+            On a touch screen: two fingers to turn and tilt the board, pinch to zoom, double
+            tap to reset the view.
+          </li>
+          <li>
+            With a mouse: right-drag (or shift-drag) to turn and tilt, scroll to zoom, double
+            click to reset the view.
+          </li>
+        </ul>
+        <h3>Corners</h3>
+        <p>
+          With 3 players every destination starts empty. With 2, 4 and 6 players your destination
+          is another player's starting corner — you move in as they move out.
+        </p>
+        <h3>Licences</h3>
+        <p class="hint">
+          This game is built on open source, whose licences ask only that their notices travel
+          with it.
+        </p>
+        <ul class="licences">
+          <li>
+            <strong>three.js</strong> — Copyright &copy; 2010 three.js authors. MIT Licence.
+          </li>
+          <li>
+            <strong>Fredoka One</strong> — Copyright &copy; 2012 Milena Brandao. SIL Open Font
+            Licence 1.1.
+          </li>
+        </ul>
+        <button id="btn-rules-back" class="primary" type="button">Back</button>
+      </div>
+    </section>
+
+    <div id="scrim" class="hidden"></div>
+
+    <!-- In-app confirmation. Replaces window.confirm, which some webviews suppress. -->
+    <div id="dialog" class="dialog-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+      <div class="dialog">
+        <h2 id="dialog-title"></h2>
+        <p id="dialog-body" class="hint"></p>
+        <div class="actions">
+          <button id="dialog-confirm" class="primary" type="button">Confirm</button>
+          <button id="dialog-cancel" class="ghost" type="button">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+﻿Fredoka One (bundled in this app)
+Copyright (c) 2012, Milena Brandao
+Licensed under the SIL Open Font License, Version 1.1 - full text in OFL.txt.
+
+The font binary ships inside the app bundle (built from src/assets/fredoka-one.ttf)
+rather than being loaded from a CDN, so the game works offline and fetches no
+third-party resources.

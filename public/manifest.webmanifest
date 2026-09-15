@@ -1,0 +1,20 @@
+{
+  "name": "Chinese Checkers",
+  "short_name": "Checkers",
+  "description": "Chinese Checkers for 2 to 6 players, pass and play on one device.",
+  "id": "chinese-checkers",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "portrait",
+  "background_color": "#ffe7f0",
+  "theme_color": "#ffe7f0",
+  "categories": ["games", "board"],
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "./apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}
